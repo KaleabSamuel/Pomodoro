@@ -1,13 +1,12 @@
 const readline = require('readline');
-const chalk = require('chalk');
 const notifier = require('node-notifier');
 const path = require('path');
 const fs = require('fs');
 const player = require('node-wav-player');
 
-// const workDuration = 25 * 60; // 25 minutes in seconds
-// const shortBreak = 5 * 60; // 5 minutes in seconds
-// const longBreak = 15 * 60; // 15 minutes in seconds
+const workDuration = 25 * 60; // 25 minutes in seconds
+const shortBreak = 5 * 60; // 5 minutes in seconds
+const longBreak = 15 * 60; // 15 minutes in seconds
 const workSessionsBeforeLongBreak = 4;
 
 let completedWorkSessions = 0;
@@ -18,11 +17,6 @@ let timeInterval;
 let currentSession = '';
 let running = false;
 let paused = false;
-
-// For testing purpose
-let workDuration = 5;
-let shortBreak = 2;
-let longBreak = 4;
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -56,14 +50,12 @@ const startTimer = (duration, label, callback) => {
   paused = false;
 
   timeInterval = setInterval(() => {
-    process.stdout.write(
-      chalk.blue(`\r${label} Session: ${timeFormatter(timeRemaining)}`)
-    );
+    process.stdout.write(`\r${label} Session: ${timeFormatter(timeRemaining)}`);
     timeRemaining--;
 
     if (timeRemaining < 0) {
       clearInterval(timeInterval);
-      console.log(chalk.green(`\n${label} ended.`));
+      console.log(`\n${label} ended.`);
 
       notificationSound();
       notifier.notify({
@@ -81,7 +73,7 @@ const startTimer = (duration, label, callback) => {
 // Starts the work session
 const startWorkSession = () => {
   console.clear();
-  console.log(chalk.yellow(`\nWork Session Started`));
+  console.log(`\nWork Session Started`);
   startTimer(workDuration, 'Work', () => {
     completedWorkSessions++;
     totalWorkTime += workDuration;
@@ -95,14 +87,14 @@ const startWorkSession = () => {
 
 // Starts the Short Break session
 const startShortBreak = () => {
-  console.log(chalk.green(`\nTake a short break!`));
+  console.log(`\nTake a short break!`);
   startTimer(shortBreak, 'Short Break', startWorkSession);
   totalBreakTime += shortBreak;
 };
 
 // Starts the Long Break session
 const startLongBreak = () => {
-  console.log(chalk.green(`\nTime for a long break!`));
+  console.log(`\nTime for a long break!`);
   startTimer(longBreak, 'Long Break', () => {
     startWorkSession();
   });
@@ -117,7 +109,7 @@ const commandHandler = (command) => {
       if (!running && !paused) {
         startWorkSession();
       } else {
-        console.log(chalk.red('Timer is may be running or paused'));
+        console.log('Timer is may be running or paused');
       }
       break;
     case 'settings':
@@ -139,14 +131,14 @@ const commandHandler = (command) => {
       if (running && !paused) {
         pause();
       } else {
-        console.log(chalk.red('No timer to pause.'));
+        console.log('No timer to pause.');
       }
       break;
     case 'resume':
       if (paused) {
         resume();
       } else {
-        console.log(chalk.red('No timer to resume.'));
+        console.log('No timer to resume.');
       }
       break;
     case 'stop':
@@ -154,7 +146,7 @@ const commandHandler = (command) => {
         console.clear();
         stop();
       } else {
-        console.log(chalk.red('No timer to stop.'));
+        console.log('No timer to stop.');
       }
       break;
     case 'reset':
@@ -163,14 +155,14 @@ const commandHandler = (command) => {
       break;
     default:
       console.clear();
-      console.log(chalk.red('Please enter a valid command!'));
-      mainMenu();
+      console.log('Please enter a valid command!');
+    // mainMenu();
   }
 };
 
 const displayHelp = () => {
   console.log(
-    chalk.cyan(`
+    `
 Available Commands:
 start   - Start the Pomodoro timer
 stop    - Stop the current timer
@@ -180,7 +172,7 @@ reset   - Reset the timer
 settings - Change timer settings (work/break durations)
 help    - Display this help message
 exit    - Exit the program
-`)
+`
   );
 };
 
@@ -188,11 +180,11 @@ const pause = () => {
   clearInterval(timeInterval);
   running = false;
   paused = true;
-  console.log(chalk.yellow(`${currentSession} has been paused.`));
+  console.log(`\n${currentSession} has been paused.`);
 };
 
 const resume = () => {
-  console.log(`${currentSession} session resuming...`);
+  console.log(`\n${currentSession} session resuming...`);
   startTimer(timeRemaining, currentSession, () => {
     if (completedWorkSessions % workSessionsBeforeLongBreak === 0) {
       startLongBreak();
@@ -207,12 +199,14 @@ const stop = () => {
   running = false;
   paused = false;
   if (currentSession === 'Work') {
-    totalWorkTime += timeRemaining;
+    totalWorkTime += workDuration - timeRemaining;
+  } else if (currentSession === 'Short Break') {
+    totalBreakTime += shortBreak - timeRemaining;
   } else {
-    totalBreakTime += timeRemaining;
+    totalBreakTime += longBreak - timeRemaining;
   }
   timeRemaining = 0;
-  console.log(chalk.yellow(`${currentSession} session stopped.`));
+  console.log(`\n${currentSession} session stopped.`);
 };
 
 const reset = () => {
@@ -223,20 +217,18 @@ const reset = () => {
   totalBreakTime = 0;
   totalWorkTime = 0;
   completedWorkSessions = 0;
-  console.log(chalk.yellow(`Timer has been reset`));
+  console.log(`\nTimer has been reset`);
 };
 
 // Handes the options that is given to the user to change the time durations
 const changeSettings = () => {
   rl.question(
-    chalk.cyan(
-      `1) Change the work duration
+    `1) Change the work duration
 2) Change the short break duration
 3) Change the long break duration
 4) Change the the cycle the long break appears
 5) Back
-Insert a Number (1-5)`
-    ),
+Insert a Number (1-5)`,
     (answer) => {
       const ans = parseInt(answer);
       if (ans >= 1 && ans <= 4) {
@@ -246,7 +238,7 @@ Insert a Number (1-5)`
         mainMenu();
       } else {
         console.clear();
-        console.log(console.log(chalk.red('Please Enter Correct Number!')));
+        console.log('Please Enter Correct Number!');
         changeSettings();
       }
     }
@@ -271,7 +263,7 @@ const changeTime = (ans) => {
         changeSettings();
       } else {
         console.clear();
-        console.log(console.log(chalk.red('Please Enter Correct Time!')));
+        console.log('Please Enter Correct Time!');
         changeTime(ans);
       }
     });
@@ -284,7 +276,7 @@ const changeTime = (ans) => {
         changeSettings();
       } else {
         console.clear();
-        console.log(console.log(chalk.red('Please Enter Correct Number!')));
+        console.log('Please Enter Correct Number!');
         changeTime(ans);
       }
     });
@@ -354,15 +346,13 @@ const savingWork = () => {
 
 // Displays the main menu and listens to the command being given
 const mainMenu = () => {
-  console.log(chalk.cyan(`Welcome to the Pomodoro Timer!\n`));
+  console.log(`Welcome to the Pomodoro Timer!\n`);
   console.log(
-    chalk.cyan(
-      `start - Start the Pomodoro
+    `start - Start the Pomodoro
 settings - Change the time durations
 stat - See the statistics
 help - See the available commands
 exit - Exit the program`
-    )
   );
   rl.prompt();
   rl.on('line', (command) => {
@@ -370,7 +360,7 @@ exit - Exit the program`
     rl.prompt();
   });
   rl.on('close', () => {
-    console.log(chalk.green('\nExiting Pomodoro Timer. Goodbye!'));
+    console.log('\nExiting Pomodoro Timer. Goodbye!');
     savingWork();
     process.exit(0);
   });
