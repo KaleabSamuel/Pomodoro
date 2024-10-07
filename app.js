@@ -49,6 +49,15 @@ const startTimer = (duration, label, callback) => {
   running = true;
   paused = false;
 
+  if (timeRemaining === duration) {
+    notifier.notify({
+      title: 'Pomodoro Timer',
+      message: `\n${label} Started.`,
+      icon: path.join(__dirname, 'alarm-clock.png'),
+      sound: false,
+    });
+  }
+
   timeInterval = setInterval(() => {
     process.stdout.write(`\r${label} Session: ${timeFormatter(timeRemaining)}`);
     timeRemaining--;
@@ -59,7 +68,7 @@ const startTimer = (duration, label, callback) => {
 
       notificationSound();
       notifier.notify({
-        title: 'Timer Notification',
+        title: 'Pomodoro Timer',
         message: `\n${label} ended.`,
         icon: path.join(__dirname, 'alarm-clock.png'),
         sound: false,
