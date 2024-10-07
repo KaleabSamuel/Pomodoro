@@ -1,0 +1,20 @@
+[
+  {
+    "id": "2024/10/5",
+    "totalBreakTime": 10,
+    "totalWorkTime": 2000,
+    "completedWorkSessions": 4
+  },
+  {
+    "id": "2024/10/6",
+    "totalBreakTime": 4,
+    "totalWorkTime": 1000,
+    "completedWorkSessions": 2
+  },
+  {
+    "id": "2024/10/7",
+    "totalBreakTime": 44,
+    "totalWorkTime": 85,
+    "completedWorkSessions": 17
+  }
+]
