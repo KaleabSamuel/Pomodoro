@@ -13,8 +13,14 @@
   },
   {
     "id": "2024/10/7",
-    "totalBreakTime": 44,
-    "totalWorkTime": 85,
-    "completedWorkSessions": 17
+    "totalBreakTime": 148,
+    "totalWorkTime": 1864,
+    "completedWorkSessions": 18
+  },
+  {
+    "id": "2024/10/8",
+    "totalBreakTime": 0,
+    "totalWorkTime": 13,
+    "completedWorkSessions": 0
   }
 ]
