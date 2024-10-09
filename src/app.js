@@ -28,7 +28,16 @@ const rl = readline.createInterface({
   prompt: chalk.cyan('\nInsert a command: '),
 });
 
-// Notification sound
+/**
+ * Plays a notification sound from the specified file path.
+ *
+ * @function notificationSound
+ * @throws {Error} Logs an error if the sound file cannot be played.
+ *
+ * @example
+ * notificationSound();
+ */
+
 const notificationSound = () => {
   try {
     player.play({
@@ -39,14 +48,36 @@ const notificationSound = () => {
   }
 };
 
-// Format the time to be printed as a time
+/**
+ * Formats a given time in seconds to a `MM:SS` string format.
+ *
+ * @function timeFormatter
+ * @param {number} seconds - The total time in seconds to format.
+ * @returns {string} The formatted time in `MM:SS` format.
+ *
+ * @example
+ * const formattedTime = timeFormatter(90); // "01:30"
+ */
+
 const timeFormatter = (seconds) => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
-// Contdown any time it is given
+/**
+ * Starts a countdown timer for a given duration with a specific label.
+ * Displays the timer in the console and triggers a callback when the time ends.
+ *
+ * @function startTimer
+ * @param {number} duration - The duration of the timer in seconds.
+ * @param {string} label - The label for the session (e.g., "Work", "Break").
+ * @param {Function} callback - A callback function to execute when the timer ends.
+ *
+ * @example
+ * startTimer(1500, 'Work', () => console.log('Work session ended.'));
+ */
+
 const startTimer = (duration, label, callback) => {
   timeRemaining = duration;
   currentSession = label;
@@ -85,7 +116,16 @@ const startTimer = (duration, label, callback) => {
   }, 1000);
 };
 
-// Starts the work session
+/**
+ * Starts a work session, initiates the work timer, and tracks the number of completed sessions.
+ * When a work session ends, it automatically starts a short or long break based on the completed sessions.
+ *
+ * @function startWorkSession
+ *
+ * @example
+ * startWorkSession();
+ */
+
 const startWorkSession = () => {
   console.clear();
   console.log(chalk.cyan(`\nWork Session Started`));
@@ -100,14 +140,32 @@ const startWorkSession = () => {
   });
 };
 
-// Starts the Short Break session
+/**
+ * Starts a short break session and initiates a short break timer.
+ * After the break ends, it resumes the work session.
+ *
+ * @function startShortBreak
+ *
+ * @example
+ * startShortBreak();
+ */
+
 const startShortBreak = () => {
   console.log(chalk.yellow(`\nTake a short break!`));
   startTimer(shortBreak, 'Short Break', startWorkSession);
   totalBreakTime += shortBreak;
 };
 
-// Starts the Long Break session
+/**
+ * Starts a long break session and initiates a long break timer.
+ * After the long break ends, it resumes the work session.
+ *
+ * @function startLongBreak
+ *
+ * @example
+ * startLongBreak();
+ */
+
 const startLongBreak = () => {
   console.log(chalk.yellow(`\nTime for a long break!`));
   startTimer(longBreak, 'Long Break', () => {
@@ -116,11 +174,21 @@ const startLongBreak = () => {
   totalBreakTime += longBreak;
 };
 
-// controls any comman that is given by the user
+/**
+ * Handles commands input by the user, such as starting, pausing, or stopping the timer.
+ *
+ * @function commandHandler
+ * @param {string} command - The user input command.
+ *
+ * @example
+ * commandHandler('start');
+ */
+
 const commandHandler = (command) => {
   const com = command.trim().toLowerCase();
   switch (com) {
     case 'start':
+    case 'w':
       if (!running && !paused) {
         startWorkSession();
       } else {
@@ -136,6 +204,7 @@ const commandHandler = (command) => {
       statistics();
       break;
     case 'help':
+    case 'h':
       console.clear();
       displayHelp();
       break;
@@ -143,6 +212,7 @@ const commandHandler = (command) => {
       rl.close();
       break;
     case 'pause':
+    case 'p':
       if (running && !paused) {
         pause();
       } else {
@@ -150,6 +220,7 @@ const commandHandler = (command) => {
       }
       break;
     case 'resume':
+    case 'r':
       if (paused) {
         resume();
       } else {
@@ -157,6 +228,7 @@ const commandHandler = (command) => {
       }
       break;
     case 'stop':
+    case 'a':
       if (running || paused) {
         console.clear();
         stop();
@@ -165,6 +237,7 @@ const commandHandler = (command) => {
       }
       break;
     case 'reset':
+    case 'r':
       console.clear();
       reset();
       break;
@@ -175,23 +248,41 @@ const commandHandler = (command) => {
   }
 };
 
+/**
+ * Displays a help message listing all available commands for the user.
+ *
+ * @function displayHelp
+ *
+ * @example
+ * displayHelp();
+ */
+
 const displayHelp = () => {
   console.log(
     chalk.cyan(
       `
 Available Commands:
-start   - Start the Pomodoro timer
-stop    - Stop the current timer
-pause   - Pause the current timer
-resume  - Resume the paused timer
-reset   - Reset the timer
-settings - Change timer settings (work/break durations)
-help    - Display this help message
-exit    - Exit the program
+start   (w)  - Start the Pomodoro timer
+stop    (a)  - Stop the current timer
+pause   (p)  - Pause the current timer
+resume  (r)  - Resume the paused timer
+reset   (x)  - Reset the timer
+settings     - Change timer settings (work/break durations)
+help    (h)  - Display this help message
+exit         - Exit the program
 `
     )
   );
 };
+
+/**
+ * Pauses the current session and stops the timer from counting down.
+ *
+ * @function pause
+ *
+ * @example
+ * pause();
+ */
 
 const pause = () => {
   clearInterval(timeInterval);
@@ -199,6 +290,15 @@ const pause = () => {
   paused = true;
   console.log(chalk.yellow(`\n${currentSession} has been paused.`));
 };
+
+/**
+ * Resumes the paused session by continuing the timer from where it was paused.
+ *
+ * @function resume
+ *
+ * @example
+ * resume();
+ */
 
 const resume = () => {
   console.log(chalk.yellow(`\n${currentSession} session resuming...`));
@@ -210,6 +310,16 @@ const resume = () => {
     }
   });
 };
+
+/**
+ * Stops the current session and resets the timer to 0.
+ * Updates the total work or break time based on the session that was stopped.
+ *
+ * @function stop
+ *
+ * @example
+ * stop();
+ */
 
 const stop = () => {
   clearInterval(timeInterval);
@@ -226,6 +336,15 @@ const stop = () => {
   console.log(chalk.yellow(`\n${currentSession} session stopped.`));
 };
 
+/**
+ * Resets the timer, total work time, total break time, and completed sessions to their default values.
+ *
+ * @function reset
+ *
+ * @example
+ * reset();
+ */
+
 const reset = () => {
   clearInterval(timeInterval);
   running = false;
@@ -237,7 +356,15 @@ const reset = () => {
   console.log(chalk.green(`\nTimer has been reset`));
 };
 
-// Handes the options that is given to the user to change the time durations
+/**
+ * Allows the user to change the durations of work, short break, long break, or cycles for long breaks.
+ *
+ * @function changeSettings
+ *
+ * @example
+ * changeSettings();
+ */
+
 const changeSettings = () => {
   rl.question(
     chalk.cyan(
@@ -273,7 +400,16 @@ Insert a Number (1-6): `
   );
 };
 
-// the actual function that does the change to the time durations
+/**
+ * Modifies the timer durations based on user input (work, short break, long break, or cycle count).
+ *
+ * @function changeTime
+ * @param {number} ans - The user's choice for which duration to change (1 = work, 2 = short break, etc.).
+ *
+ * @example
+ * changeTime(1); // Changes the work duration
+ */
+
 const changeTime = (ans) => {
   if (ans >= 1 && ans <= 3) {
     rl.question(chalk.cyan('Enter the time in minutes: '), (minutes) => {
@@ -313,7 +449,15 @@ const changeTime = (ans) => {
   }
 };
 
-// Fetch and display the statistics that is saved in the file
+/**
+ * Displays the saved statistics for completed work and break sessions, including total work/break times and completed cycles.
+ *
+ * @function statistics
+ *
+ * @example
+ * statistics();
+ */
+
 const statistics = () => {
   if (fs.existsSync(savedStatePath)) {
     const data = fs.readFileSync(savedStatePath, 'utf-8');
@@ -343,7 +487,16 @@ const statistics = () => {
   }
 };
 
-// saves the current dates states when the program closes
+/**
+ * Saves the current session state to a file when the program exits.
+ * The saved state includes the total work time, total break time, and completed sessions for the day.
+ *
+ * @function savingWork
+ *
+ * @example
+ * savingWork();
+ */
+
 const savingWork = () => {
   const currentDate = new Date();
   let state = [];
@@ -376,15 +529,24 @@ const savingWork = () => {
   fs.writeFileSync(savedStatePath, JSON.stringify(state, null, 2), 'utf-8');
 };
 
-// Displays the main menu and listens to the command being given
+/**
+ * Displays the main menu of the program, listing available commands and listening for user input.
+ * When the program exits, it saves the current state and closes the readline interface.
+ *
+ * @function mainMenu
+ *
+ * @example
+ * mainMenu();
+ */
+
 const mainMenu = () => {
   console.log(chalk.cyan(`Welcome to the Pomodoro Timer!\n`));
   console.log(
     chalk.cyan(
-      `start - Start the Pomodoro
+      `start (w) - Start the Pomodoro
 settings - Change the time durations
 stat - See the statistics
-help - See the available commands
+help (h) - See the available commands
 exit - Exit the program`
     )
   );
